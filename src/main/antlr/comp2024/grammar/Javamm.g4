@@ -10,7 +10,7 @@ ID : [a-zA-Z_][a-zA-Z_0-9]* ;
 WS : [ \t\n\r\f]+ -> skip ;
 
 program
-    : statement EOF
+    : statement+ EOF
     ;
 
 statement
@@ -19,8 +19,8 @@ statement
     ;
 
 expression
-    : expression ('+' | '-') expression
-    | expression ('*' | '/') expression
-    | INTEGER
-    | ID
+    : expression op =('*' | '/') expression    #BinaryOp
+    | expression op =('+' | '-') expression    #BinaryOp
+    | value = INTEGER                          #Integer
+    | value = ID                               #Identifier
     ;

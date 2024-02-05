@@ -1,19 +1,27 @@
 package pt.up.fe.comp2024;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.antlr.v4.gui.TreeViewer;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.Trees;
+import pt.up.fe.comp.TestUtils;
+import pt.up.fe.comp.jmm.ast.antlr.AntlrParser;
+import pt.up.fe.comp.jmm.parser.JmmParserResult;
+import pt.up.fe.comp.jmm.report.Report;
+import pt.up.fe.comp.jmm.report.ReportType;
+import pt.up.fe.comp.jmm.report.Stage;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
 import pt.up.fe.specs.util.SpecsSystem;
-import pt.up.fe.comp2024.JavammLexer;
-import pt.up.fe.comp2024.JavammParser;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import javax.swing.*;
 
 public class Launcher {
 
@@ -35,25 +43,18 @@ public class Launcher {
         // Read contents of input file
         String code = SpecsIo.read(inputFile);
 
-        // Convert code string into a character stream
-        var input = new ANTLRInputStream(code);
-        // Transform characters into tokens using the lexer
-        var lex = new JavammLexer(input);
-        // Wrap lexer around a token stream
-        var tokens = new CommonTokenStream(lex);
-        // Transform tokens into a parse tree
-        var parser = new JavammParser(tokens);
-        ParseTree root = parser.program();
+        // Instantiate JmmParser
+        SimpleParser parser = new SimpleParser();
 
+        // Parse stage
+        JmmParserResult parserResult = parser.parse(code, config);
 
-        //show AST in terminal
-        System.out.println(root.toStringTree(parser));
+        System.out.println(parserResult.getRootNode().toTree());
 
-        //show AST in GUI
-        TreeViewer viewer = new TreeViewer(
-                Arrays.asList(parser.getRuleNames()),
-                root);
-        viewer.open();
+        // Check if there are parsing errors
+        TestUtils.noErrors(parserResult.getReports());
+
+        // ... add remaining stages
     }
 
     private static Map<String, String> parseArgs(String[] args) {
@@ -67,8 +68,10 @@ public class Launcher {
         // Create config
         Map<String, String> config = new HashMap<>();
         config.put("inputFile", args[0]);
+        config.put("optimize", "false");
+        config.put("registerAllocation", "-1");
+        config.put("debug", "false");
 
         return config;
     }
-
 }
