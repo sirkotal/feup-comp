@@ -42,7 +42,7 @@ sourceSets {
    }
 }
 
-mainClassName = 'pt.up.fe.comp2024.Launcher'
+ /* mainClassName = 'pt.up.fe.comp2024.Launcher' */
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])

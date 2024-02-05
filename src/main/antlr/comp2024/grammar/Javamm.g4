@@ -19,10 +19,8 @@ statement
     ;
 
 expression
-    : expression '+' expression
-    | expression '-' expression
-    | expression '*' expression
-    | expression '/' expression
+    : expression ('+' | '-') expression
+    | expression ('*' | '/') expression
     | INTEGER
     | ID
     ;
