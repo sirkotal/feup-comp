@@ -2,6 +2,8 @@ package pt.up.fe.comp2024;
 
 import pt.up.fe.comp2024.JavammLexer;
 import pt.up.fe.comp2024.JavammParser;
+import pt.up.fe.comp2024.Ipv4Parser;
+import pt.up.fe.comp2024.Ipv4Parser;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import pt.up.fe.comp.jmm.ast.antlr.AntlrParser;
@@ -41,11 +43,11 @@ public class SimpleParser implements JmmParser {
             // Convert code string into a character stream
             var input = new ANTLRInputStream(jmmCode);
             // Transform characters into tokens using the lexer
-            var lex = new JavammLexer(input);
+            var lex = new Ipv4Lexer(input);
             // Wrap lexer around a token stream
             var tokens = new CommonTokenStream(lex);
             // Transforms tokens into a parse tree
-            var parser = new JavammParser(tokens);
+            var parser = new Ipv4Parser(tokens);
 
             // Convert ANTLR CST to JmmNode AST
             return AntlrParser.parse(lex, parser, startingRule)
