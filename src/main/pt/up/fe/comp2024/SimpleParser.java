@@ -43,11 +43,11 @@ public class SimpleParser implements JmmParser {
             // Convert code string into a character stream
             var input = new ANTLRInputStream(jmmCode);
             // Transform characters into tokens using the lexer
-            var lex = new Ipv4Lexer(input);
+            var lex = new pt.up.fe.comp2024.Ipv4Lexer(input);
             // Wrap lexer around a token stream
             var tokens = new CommonTokenStream(lex);
             // Transforms tokens into a parse tree
-            var parser = new Ipv4Parser(tokens);
+            var parser = new pt.up.fe.comp2024.Ipv4Parser(tokens);
 
             // Convert ANTLR CST to JmmNode AST
             return AntlrParser.parse(lex, parser, startingRule)

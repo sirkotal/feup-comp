@@ -4,20 +4,13 @@ grammar Ipv4;
     package pt.up.fe.comp2024;
 }
 
-INTEGER : [0-9]+ ;
-ID : [a-zA-Z_][a-zA-Z_0-9]* ;
-
-WS : [ \t\n\r\f]+ -> skip ;
+OCTET: [0-9] | [1-9] [0-9] | '1' [0-9] [0-9] | '2' [0-4] [0-9] | '2' '5' [0-5];
+SEP: '.';
 
 program
-    : statement+ EOF
-    ;
-
-statement
-    : address ';'
+    : address+ EOF
     ;
 
 address
-    : address '.' address
-    | value = INTEGER
+    : o1=OCTET '.' o2=OCTET '.' o3=OCTET '.' o4=OCTET ';'
     ;
