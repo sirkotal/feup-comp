@@ -14,8 +14,8 @@ program
     ;
 
 statement
-    : expression ';'
-    | ID '=' INTEGER ';'
+    : expression ';'                           #ExprStmt
+    | var = ID '=' value = INTEGER ';'         #Assignment
     ;
 
 expression
