@@ -4,23 +4,120 @@ grammar Javamm;
     package pt.up.fe.comp2024;
 }
 
+EQUALS : '=';
+SEMI : ';' ;
+DOT : '.' ;
+COMMA : ',' ;
+LCURLY : '{' ;
+RCURLY : '}' ;
+LPAREN : '(' ;
+RPAREN : ')' ;
+LSQUARE : '[' ;
+RSQUARE : ']' ;
+MUL : '*' ;
+ADD : '+' ;
+SUB : '-' ;
+DIV : '/' ;
+LES : '<' ;
+GRE : '>' ;
+AND : '&&' ;
+NOT : '!' ;
+VARARGS : '...' ;
+
+IMPORT : 'import' ;
+CLASS : 'class' ;
+EXTENDS : 'extends' ;
+INT : 'int' ;
+BOOLEAN : 'boolean' ;
+VOID : 'void' ;
+PUBLIC : 'public' ;
+STATIC : 'static' ;
+RETURN : 'return' ;
+NEW: 'new' ;
+LENGTH: 'length' ;
+THIS: 'this' ;
+WHILE: 'while' ;
+IF: 'if' ;
+ELSE: 'else' ;
+
 INTEGER : [0-9]+ ;
-ID : [a-zA-Z_][a-zA-Z_0-9]* ;
+ID : [a-zA-Z][a-zA-Z0-9]* ;
 
 WS : [ \t\n\r\f]+ -> skip ;
 
 program
-    : statement+ EOF
+    : (importDecl)* classDecl EOF
     ;
 
-statement
-    : expression ';'                           #ExprStmt
-    | var = ID '=' value = INTEGER ';'         #Assignment
+importDecl
+    : IMPORT value+=ID ('.' value+=ID)* SEMI
     ;
 
-expression
-    : expression op =('*' | '/') expression    #BinaryOp
-    | expression op =('+' | '-') expression    #BinaryOp
-    | value = INTEGER                          #Integer
-    | value = ID                               #Identifier
+classDecl
+    : CLASS name=ID (EXTENDS extended=ID)?
+        LCURLY
+        varDecl*
+        methodDecl*
+        RCURLY
     ;
+
+varDecl
+    : type name=ID SEMI
+    ;
+
+type
+    : type LSQUARE RSQUARE  #ArrayType
+    | name= INT VARARGS     #VarargsType
+    | name= BOOLEAN         #BooleanType
+    | name= INT             #IntType
+    | name= 'String'        #StringType
+    | name= ID              #ClassType
+    ;
+
+methodDecl locals[boolean isPublic=false]
+    : (PUBLIC {$isPublic=true;})?
+        type name=ID
+        LPAREN (param (',' param)*)? RPAREN
+        LCURLY varDecl* stmt* RETURN expr SEMI RCURLY
+    | (PUBLIC {$isPublic=true;})? STATIC
+        VOID name='main'
+        LPAREN 'String' LSQUARE RSQUARE paramName=ID RPAREN
+        LCURLY varDecl* stmt* RCURLY
+    ;
+
+param
+    : type name=ID
+    ;
+
+stmt
+    : expr SEMI                                         #ExprStmt
+    | LCURLY stmt* RCURLY                               #BlockStmt
+    | IF LPAREN expr RPAREN stmt (ELSE stmt)?           #IfStmt
+    | WHILE LPAREN expr RPAREN stmt                     #WhileStmt
+    | name=ID EQUALS expr SEMI                          #AssignStmt
+    | name=ID LSQUARE expr RSQUARE EQUALS expr SEMI     #AssignArrayStmt
+    | RETURN expr SEMI                                  #ReturnStmt
+    ;
+
+expr
+    : expr op= (MUL | DIV) expr                             #BinaryExpr
+    | expr op= (ADD | SUB) expr                             #BinaryExpr
+    | expr op= (LES | GRE) expr                             #BinaryExpr
+    | expr op= AND expr                                     #BinaryExpr
+    | expr LSQUARE expr RSQUARE                             #ArrayAccess
+    | expr DOT LENGTH                                       #Length
+    | expr DOT ID LPAREN (expr ( COMMA expr )*)? RPAREN     #Method
+    | NEW INT LSQUARE expr RSQUARE                          #NewArray
+    | NEW classname=ID LPAREN (param (',' param)*)? RPAREN  #NewClassExpr
+    | NEW ID LPAREN RPAREN                                  #NewObject
+    | NOT expr                                              #Negation
+    | LPAREN expr RPAREN                                    #Priority
+    | LSQUARE (expr ( COMMA expr )*)? RSQUARE               #ArraySomething
+    | value=INTEGER                                         #IntegerLiteral
+    | value=('true' | 'false')                              #BooleanLiteral
+    | name=ID                                               #VarRefExpr
+    | THIS                                                  #ThisExpr
+    ;
+
+
+
