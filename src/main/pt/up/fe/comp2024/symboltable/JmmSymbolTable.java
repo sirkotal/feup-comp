@@ -16,6 +16,7 @@ public class JmmSymbolTable implements SymbolTable {
     private final String className;
     private final String superName;
     private final List<String> imports;
+    private final List<Symbol> fields;
     private final List<String> methods;
     private final Map<String, Type> returnTypes;
     private final Map<String, List<Symbol>> params;
@@ -24,6 +25,7 @@ public class JmmSymbolTable implements SymbolTable {
     public JmmSymbolTable(String className,
                           String superName,
                           List<String> imports,
+                          List<Symbol> fields,
                           List<String> methods,
                           Map<String, Type> returnTypes,
                           Map<String, List<Symbol>> params,
@@ -31,6 +33,7 @@ public class JmmSymbolTable implements SymbolTable {
         this.className = className;
         this.superName = superName;
         this.imports = imports;
+        this.fields = fields;
         this.methods = methods;
         this.returnTypes = returnTypes;
         this.params = params;
@@ -54,7 +57,7 @@ public class JmmSymbolTable implements SymbolTable {
 
     @Override
     public List<Symbol> getFields() {
-        return new ArrayList<Symbol>();
+        return Collections.unmodifiableList(fields);
     }
 
     @Override
@@ -65,7 +68,7 @@ public class JmmSymbolTable implements SymbolTable {
     @Override
     public Type getReturnType(String methodSignature) {
         // TODO: Simple implementation that needs to be expanded
-        return new Type(TypeUtils.getIntTypeName(), false);
+        return returnTypes.get(methodSignature);
     }
 
     @Override
