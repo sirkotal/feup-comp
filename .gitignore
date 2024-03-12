@@ -6,6 +6,8 @@
 /generated/
 /run/
 gradle*
+COMP2024_CP1.pdf
+COMP2024_CP2.pdf
 
 # Class files
 **/*.class
