@@ -3,6 +3,7 @@ class ArrayInit {
     public int[] foo() {
         int[] a;
         a = [10, 20, 30];
+        a = new int[10];
         return a;
     }
 

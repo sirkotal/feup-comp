@@ -1,8 +1,11 @@
 package pt.up.fe.comp2024.ast;
 
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
+import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
+import pt.up.fe.comp.jmm.report.Report;
+import pt.up.fe.comp.jmm.report.Stage;
 
 public class TypeUtils {
 
@@ -30,38 +33,135 @@ public class TypeUtils {
      * @return
      */
     public static Type getExprType(JmmNode expr, SymbolTable table) {
-        // TODO: Simple implementation that needs to be expanded
-
         var kind = Kind.fromString(expr.getKind());
-
-        Type type = switch (kind) {
+        return switch (kind) {
             case BINARY_EXPR -> getBinExprType(expr);
             case VAR_REF_EXPR -> getVarExprType(expr, table);
-            case INTEGER_LITERAL -> new Type(INT_TYPE_NAME, false);
+            case METHOD_EXPR -> getMethodExprType(expr, table);
+            case INTEGER_LITERAL, LENGTH_EXPR -> new Type(INT_TYPE_NAME, false);
             case BOOLEAN_LITERAL -> new Type(BOOLEAN_TYPE_NAME, false);
-            case CLASS_DECL -> new Type(expr.get("name"), false);
+            case ARRAY_LITERAL -> getArrayLiteralType(expr, table);
+            case ARRAY_ACCESS -> getArrayAccess(expr, table);
+            case ARRAY_TYPE -> new Type(expr.getJmmChild(0).get("name"), true);
+            case CLASS_DECL, NEW_CLASS -> new Type(expr.get("name"), false);
+            case THIS_EXPR -> new Type(table.getClassName(), false);
             default -> throw new UnsupportedOperationException("Can't compute type for expression kind '" + kind + "'");
         };
-
-        return type;
     }
 
     private static Type getBinExprType(JmmNode binaryExpr) {
-        // TODO: Simple implementation that needs to be expanded
-
         String operator = binaryExpr.get("op");
 
         return switch (operator) {
-            case "+", "*" -> new Type(INT_TYPE_NAME, false);
+            case "+", "-", "*", "/" -> new Type(INT_TYPE_NAME, false);
+            case "<", "<=", ">", ">=", "&&", "||", "==", "!=" -> new Type(BOOLEAN_TYPE_NAME, false);
             default ->
                     throw new RuntimeException("Unknown operator '" + operator + "' of expression '" + binaryExpr + "'");
         };
     }
 
-
     private static Type getVarExprType(JmmNode varRefExpr, SymbolTable table) {
-        // TODO: Simple implementation that needs to be expanded
-        return new Type(INT_TYPE_NAME, false);
+        var varName = varRefExpr.get("name");
+        var methodDecl = varRefExpr.getAncestor(Kind.METHOD_DECL);
+
+        if (methodDecl.isPresent()) {
+            var methodName = methodDecl.get().get("name");
+            var type = table.getLocalVariables(methodName).stream()
+                    .filter(var -> var.getName().equals(varName))
+                    .map(Symbol::getType)
+                    .findFirst()
+                    .or(
+                            () -> table.getParameters(methodName).stream()
+                                    .filter(var -> var.getName().equals(varName))
+                                    .map(Symbol::getType)
+                                    .findFirst()
+                                    .or(
+                                            () -> table.getFields().stream()
+                                                    .filter(var -> var.getName().equals(varName))
+                                                    .map(Symbol::getType)
+                                                    .findFirst()
+                                    )
+                    );
+
+            return type.orElse(null);
+        } else {
+            throw new RuntimeException("Variable reference outside of method declaration");
+        }
+    }
+
+    private static Type getMethodExprType(JmmNode methodExpr, SymbolTable table) {
+        var variable = methodExpr.getJmmChild(0);
+
+        if (Kind.check(variable, Kind.VAR_REF_EXPR)) {
+            var type = getVarExprType(variable, table);
+            if (type == null) {
+                return null;
+            }
+
+            if (type.getName().equals(table.getClassName())) {
+                var methodName = methodExpr.get("name");
+                if (table.getMethods().contains(methodName)) {
+                    return table.getReturnType(methodName);
+                } else {
+                    throw new RuntimeException("Method '" + methodName + "' not found in class");
+                }
+            }
+
+            return type;
+        }
+
+        var methodName = methodExpr.get("name");
+        if (Kind.check(variable, Kind.THIS_EXPR)) {
+            if (table.getMethods().contains(methodName)) {
+                return table.getReturnType(methodName);
+            } else {
+                throw new RuntimeException("Method '" + methodName + "' not found in class");
+            }
+        }
+
+        throw new RuntimeException("Method expression not supported");
+    }
+
+    public static Type getVarDeclType(JmmNode varDecl) {
+        boolean isArray = varDecl.getJmmChild(0).getObject("isArray", Boolean.class);
+        String typeName;
+
+        if (isArray) {
+            typeName = varDecl.getJmmChild(0).getJmmChild(0).get("name");
+        } else {
+            typeName = varDecl.getJmmChild(0).get("name");
+        }
+
+        return new Type(typeName, isArray);
+    }
+
+    public static Type getArrayLiteralType(JmmNode arrayLiteral, SymbolTable table) {
+        // TODO: May have some error if the array is empty (ArrayLiteral: [])
+        var elementsType = arrayLiteral.getChildren().stream()
+                .map(element -> getExprType(element, table))
+                .toList();
+
+        if (elementsType.isEmpty()) {
+            throw new RuntimeException("Array is empty");
+        } else if (elementsType.size() == 1) {
+            return new Type(elementsType.get(0).getName(), true);
+        } else {
+            return new Type(
+                    elementsType.stream().reduce((type1, type2) -> {
+                        if (!areTypesAssignable(type1, type2)) {
+                            throw new RuntimeException("Array elements have different types");
+                        }
+                        return type1;
+                    }).get().getName(),
+                    true
+            );
+        }
+    }
+
+    private static Type getArrayAccess(JmmNode arrayAccess, SymbolTable table) {
+        var arrayType = getExprType(arrayAccess.getJmmChild(0), table);
+
+        return new Type(arrayType.getName(), false);
     }
 
 

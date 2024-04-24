@@ -37,6 +37,16 @@ public class OllirTest {
         testJmmCompilation("pt/up/fe/comp/cp2/ollir/CompileAssignment.jmm", this::compileAssignment);
     }
 
+    @Test
+    public void compileClassAssignment() {
+        testJmmCompilation("pt/up/fe/comp/cp2/ollir/CompileClassAssignment.jmm", this::compileClassAssignment);
+    }
+
+    @Test
+    public void compileFields() {
+        testJmmCompilation("pt/up/fe/comp/cp2/ollir/CompileFields.jmm", this::compileFields);
+    }
+
     public static void testJmmCompilation(String resource, Consumer<ClassUnit> ollirTester, String executionOutput) {
 
         // If AstToJasmin pipeline, generate Jasmin
@@ -181,5 +191,60 @@ public class OllirTest {
 
         assertEquals("Assignment does not have the expected type", ElementType.INT32,
                 assignInst.get().getTypeOfAssign().getTypeOfElement());
+    }
+
+    public void compileClassAssignment(ClassUnit classUnit) {
+        // Test name of the class
+        assertEquals("Class name not what was expected", "CompileClassAssignment", classUnit.getClassName());
+
+        // Test main
+        var methodName = "main";
+        Method methodMain = classUnit.getMethods().stream()
+                .filter(method -> method.getMethodName().equals(methodName))
+                .findFirst()
+                .orElse(null);
+
+        assertNotNull("Could not find method " + methodName, methodMain);
+
+        var assignInst = methodMain.getInstructions().stream()
+                .filter(inst -> inst instanceof AssignInstruction)
+                .map(AssignInstruction.class::cast)
+                .findFirst();
+        assertTrue("Could not find an assign instruction in method " + methodName, assignInst.isPresent());
+
+        assertEquals("Assignment does not have the expected type", ElementType.OBJECTREF,
+                assignInst.get().getTypeOfAssign().getTypeOfElement());
+    }
+
+    // TODO: not sure about this test
+    public void compileFields(ClassUnit classUnit) {
+        // Test name of the class
+        assertEquals("Class name not what was expected", "CompileFields", classUnit.getClassName());
+
+        // Test main
+        var methodName = "foo";
+        Method methodFoo = classUnit.getMethods().stream()
+                .filter(method -> method.getMethodName().equals(methodName))
+                .findFirst()
+                .orElse(null);
+
+        assertNotNull("Could not find method " + methodName, methodFoo);
+
+        // Test putfield
+        /*var putFieldInst = methodFoo.getInstructions().stream()
+                .filter(inst -> inst instanceof PutFieldInstruction)
+                .map(PutFieldInstruction.class::cast)
+                .findFirst();
+
+        assertTrue("Could not find a putfield instruction in method " + methodName, putFieldInst.isPresent());
+
+        // Test getfield
+        var getFieldInst = methodFoo.getInstructions().stream()
+                .filter(inst -> inst instanceof AssignInstruction)
+                .map(AssignInstruction.class::cast)
+                .filter(assign -> assign.getRhs() instanceof GetFieldInstruction)
+                .findFirst();
+
+        assertTrue("Could not find a getfield instruction in method " + methodName, getFieldInst.isPresent());*/
     }
 }

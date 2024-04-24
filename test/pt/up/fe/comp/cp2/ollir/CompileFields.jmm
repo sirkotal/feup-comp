@@ -1,0 +1,21 @@
+class CompileFields {
+
+	int intField;
+
+	public static void main(String[] args) {
+	}
+
+
+	public String bar(String s) {
+	    return s;
+	}
+
+
+	public String foo() {
+        int a;
+
+		String x;
+
+		return this.bar(x);
+	}
+}

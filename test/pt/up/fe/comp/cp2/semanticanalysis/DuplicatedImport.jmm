@@ -1,0 +1,8 @@
+import io;
+import io;
+
+class DuplicatedImport {
+    public static void main(String[] args) {
+
+    }
+}

@@ -12,18 +12,30 @@ public enum Kind {
     CLASS_DECL,
     VAR_DECL,
     TYPE,
+    VARARGS_TYPE,
+    ARRAY_TYPE,
     METHOD_DECL,
     PARAM,
+    EXPR_STMT,
+    IF_STMT,
+    WHILE_STMT,
     ASSIGN_STMT,
-    RETURN_STMT,
+    ASSIGN_ARRAY_STMT,
     BINARY_EXPR,
+    ARRAY_ACCESS,
+    METHOD_EXPR,
+    NEW_ARRAY,
+    NEW_CLASS,
+    LENGTH_EXPR,
+    ARRAY_LITERAL,
     INTEGER_LITERAL,
     BOOLEAN_LITERAL,
-    VAR_REF_EXPR;
+    VAR_REF_EXPR,
+    THIS_EXPR;
 
 
-    private static final Set<Kind> STATEMENTS = Set.of(ASSIGN_STMT, RETURN_STMT);
-    private static final Set<Kind> EXPRESSIONS = Set.of(BINARY_EXPR, INTEGER_LITERAL, VAR_REF_EXPR);
+    private static final Set<Kind> STATEMENTS = Set.of(EXPR_STMT, IF_STMT, WHILE_STMT, ASSIGN_STMT, ASSIGN_ARRAY_STMT);
+    private static final Set<Kind> EXPRESSIONS = Set.of(BINARY_EXPR, ARRAY_ACCESS, METHOD_EXPR, NEW_ARRAY, NEW_CLASS, LENGTH_EXPR, ARRAY_LITERAL, INTEGER_LITERAL, BOOLEAN_LITERAL, VAR_REF_EXPR, THIS_EXPR);
 
     private final String name;
 
@@ -97,6 +109,7 @@ public enum Kind {
      * @param kindsToTest
      * @return
      */
+    StringBuilder computation = new StringBuilder();
     public static boolean check(JmmNode node, Kind... kindsToTest) {
 
         for (Kind k : kindsToTest) {

@@ -1,0 +1,8 @@
+import first.A;
+import second.A;
+
+class DuplicatedClassImport {
+    public static void main(String[] args) {
+
+    }
+}

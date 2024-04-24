@@ -1,0 +1,9 @@
+class StaticMethodWithField {
+    int a;
+
+    public static void main(String[] args) {
+        int test;
+        test = 1;
+        test = test + a;
+    }
+}

@@ -1,0 +1,10 @@
+class MultipleReturns {
+    int test() {
+        return 1;
+        return 2;
+    }
+
+    public static void main(String[] args) {
+
+    }
+}

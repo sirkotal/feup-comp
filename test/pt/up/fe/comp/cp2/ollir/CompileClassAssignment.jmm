@@ -1,0 +1,7 @@
+class CompileClassAssignment {
+
+    public static void main(String[] args) {
+        CompileClassAssignment c;
+        c = new CompileClassAssignment();
+    }
+}

@@ -11,6 +11,9 @@ public class JasminBackendImpl implements JasminBackend {
 
         var jasminGenerator = new JasminGenerator(ollirResult);
         var jasminCode = jasminGenerator.build();
+        System.out.println("The Jasmin code is as follows:");
+        System.out.println(jasminCode);
+        System.out.println("<----------------------------->");
 
         return new JasminResult(ollirResult, jasminCode, jasminGenerator.getReports());
     }

@@ -52,11 +52,11 @@ program
     ;
 
 importDecl
-    : IMPORT value+=ID ('.' value+=ID)* SEMI
+    : IMPORT value+=('main' | 'length' | ID) ('.' value+=('main' | 'length' | ID))* SEMI
     ;
 
 classDecl
-    : CLASS name=ID (EXTENDS extended=ID)?
+    : CLASS name=('main' | 'length' | ID) (EXTENDS extended=('main' | 'length' | ID))?
         LCURLY
         varDecl*
         methodDecl*
@@ -64,8 +64,7 @@ classDecl
     ;
 
 varDecl
-    : type name=ID SEMI
-    | type name='main' SEMI
+    : type name=('main' | 'length' | ID) SEMI
     ;
 
 type locals[boolean isArray=false, boolean isVarargs=false]
@@ -74,53 +73,48 @@ type locals[boolean isArray=false, boolean isVarargs=false]
     | name= BOOLEAN                             #BooleanType
     | name= INT                                 #IntType
     | name= 'String'                            #StringType
-    | name= ID                                  #ClassType
+    | name= ('main' | 'length' | ID)            #ClassType
     ;
 
 methodDecl locals[boolean isPublic=false]
     : (PUBLIC {$isPublic=true;})?
-        type name=ID
+        type name=('length' | ID)
         LPAREN (param (',' param)*)? RPAREN
-        LCURLY varDecl* stmt* RETURN expr SEMI RCURLY
+        LCURLY (varDecl | stmt)* RETURN expr SEMI RCURLY
     | (PUBLIC {$isPublic=true;})? STATIC
         VOID name='main'
-        LPAREN 'String' LSQUARE RSQUARE paramName=ID RPAREN
-        LCURLY varDecl* stmt* RCURLY
+        LPAREN 'String' LSQUARE RSQUARE paramName=('main' | 'length' | ID) RPAREN
+        LCURLY (varDecl | stmt)* RCURLY
     ;
 
 param
-    : type name=ID
+    : type name=('main' | 'length' | ID)
     ;
 
 stmt
-    : expr SEMI                                         #ExprStmt
-    | LCURLY stmt* RCURLY                               #BlockStmt
-    | IF LPAREN expr RPAREN stmt ELSE stmt              #IfStmt
-    | WHILE LPAREN expr RPAREN stmt                     #WhileStmt
-    | name=ID EQUALS expr SEMI                          #AssignStmt
-    | name=ID LSQUARE expr RSQUARE EQUALS expr SEMI     #AssignArrayStmt
-    | RETURN expr SEMI                                  #ReturnStmt
+    : expr SEMI                                                             #ExprStmt
+    | LCURLY stmt* RCURLY                                                   #BlockStmt
+    | IF LPAREN expr RPAREN stmt ELSE stmt                                  #IfStmt
+    | WHILE LPAREN expr RPAREN stmt                                         #WhileStmt
+    | name=('main' | 'length' | ID) EQUALS expr SEMI                        #AssignStmt
+    | name=('main' | 'length' | ID) LSQUARE expr RSQUARE EQUALS expr SEMI   #AssignArrayStmt
     ;
 
 expr
-    : expr op= (MUL | DIV) expr                             #BinaryExpr
-    | expr op= (ADD | SUB) expr                             #BinaryExpr
-    | expr op= (LES | GRE) expr                             #BinaryExpr
-    | expr op= AND expr                                     #BinaryExpr
-    | expr LSQUARE expr RSQUARE                             #ArrayAccess
-    | expr DOT LENGTH                                       #Length
-    | expr DOT ID LPAREN (expr ( COMMA expr )*)? RPAREN     #Method
-    | NEW INT LSQUARE expr RSQUARE                          #NewArray
-    | NEW classname=ID LPAREN (param (',' param)*)? RPAREN  #NewClassExpr
-    | NEW ID LPAREN RPAREN                                  #NewObject
-    | NOT expr                                              #Negation
-    | LPAREN expr RPAREN                                    #Priority
-    | LSQUARE (expr ( COMMA expr )*)? RSQUARE               #ArraySomething
-    | value=INTEGER                                         #IntegerLiteral
-    | value=('true' | 'false')                              #BooleanLiteral
-    | name=ID                                               #VarRefExpr
-    | THIS                                                  #ThisExpr
+    : LPAREN expr RPAREN                                                            #Priority
+    | NEW INT LSQUARE expr RSQUARE                                                  #NewArray
+    | NEW name=('main' | 'length' | ID) LPAREN (param (',' param)*)? RPAREN         #NewClass
+    | expr LSQUARE expr RSQUARE                                                     #ArrayAccess
+    | expr DOT LENGTH                                                               #LengthExpr
+    | expr DOT name=('main' | 'length' | ID) LPAREN (expr ( COMMA expr )*)? RPAREN  #MethodExpr
+    | name=THIS                                                                     #ThisExpr
+    | expr op= (MUL | DIV) expr                                                     #BinaryExpr
+    | expr op= (ADD | SUB) expr                                                     #BinaryExpr
+    | expr op= (LES | GRE) expr                                                     #BinaryExpr
+    | expr op= AND expr                                                             #BinaryExpr
+    | NOT expr                                                                      #Negation
+    | LSQUARE (elem+=expr ( COMMA elem+=expr )*)? RSQUARE                           #ArrayLiteral
+    | value=INTEGER                                                                 #IntegerLiteral
+    | value=('true' | 'false')                                                      #BooleanLiteral
+    | name=('main' | 'length' | ID)                                                 #VarRefExpr
     ;
-
-
-

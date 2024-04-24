@@ -3,7 +3,7 @@ import Quicksort;
 
 class CompileBasic extends Quicksort {
 
-    int intField;
+    X intField;
     boolean boolField;
 
     public int method1() {

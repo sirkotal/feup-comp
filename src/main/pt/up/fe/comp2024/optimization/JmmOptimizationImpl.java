@@ -5,6 +5,7 @@ import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 
 import java.util.Collections;
+import java.util.*;
 
 public class JmmOptimizationImpl implements JmmOptimization {
 
@@ -13,7 +14,9 @@ public class JmmOptimizationImpl implements JmmOptimization {
 
         var visitor = new OllirGeneratorVisitor(semanticsResult.getSymbolTable());
         var ollirCode = visitor.visit(semanticsResult.getRootNode());
-
+        System.out.println("The OLLIR code is as follows:");
+        System.out.println(ollirCode);
+        System.out.println("<----------------------------->");
         return new OllirResult(semanticsResult, ollirCode, Collections.emptyList());
     }
 

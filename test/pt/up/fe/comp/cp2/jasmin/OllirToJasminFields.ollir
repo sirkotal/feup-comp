@@ -1,21 +1,38 @@
+import io;
 Test {
 
-	.field intField.i32;
+.field public test1.i32;
+.field public test2.bool;
 
-	.construct Test().V {
-		invokespecial(this, "<init>").V;
-	}
+.method public static main(args.array.String).V {
+tmp0.Test :=.Test new(Test).Test;
+invokespecial(tmp0.Test, "").V;
+t.Test :=.Test tmp0.Test;
+tmp1.i32 :=.i32 invokevirtual(t.Test, "test", 5.i32).i32;
+a.i32 :=.i32 tmp1.i32;
+tmp2.bool :=.bool invokevirtual(t.Test, "check", 0.bool).bool;
+b.bool :=.bool tmp2.bool;
+invokestatic(io, "println", a.i32).V;
+invokestatic(io, "println", b.bool).V;
+ret.V ;
+}
 
-	.method public static main(args.array.String).V {
-		ret.V;
-	}
+.method public test(a.i32).i32 {
+tmp5.i32 :=.i32 2.i32 +.i32 5.i32;
+tmp6.i32 :=.i32 tmp5.i32 +.i32 a.i32;
+putfield(this, test1.i32, tmp6.i32).V;
+tmp7.i32 :=.i32 getfield(this, test1.i32).i32;
+tmp8.i32 :=.i32 2.i32 +.i32 tmp7.i32;
+ret.i32 tmp8.i32;
+}
 
-	
-	.method public foo().V {
+.method public check(a.bool).bool {
+putfield(this, test2.bool, a.bool).V;
+tmp9.bool :=.bool getfield(this, test2.bool).bool;
+ret.bool tmp9.bool;
+}
 
-		putfield(this, intField.i32, 10.i32).V;	
-		a.i32 :=.i32 getfield(this, intField.i32).i32;
-
-		ret.V;
-	}
+.construct Test().V {
+invokespecial(this, "").V;
+}
 }

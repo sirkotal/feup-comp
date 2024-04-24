@@ -1,0 +1,16 @@
+class ArrayCall {
+    public static void main(String[] args) {
+
+    }
+
+    public int test(int[] test) {
+        return test[0];
+    }
+
+    public int foo() {
+        int[] a;
+        a = [1, 2, 3, 4, 5];
+
+        return this.test(a);
+    }
+}

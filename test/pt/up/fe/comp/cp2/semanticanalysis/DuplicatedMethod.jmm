@@ -1,0 +1,13 @@
+class DuplicatedMethod {
+    public static void main(String[] args) {
+
+    }
+
+    public int foo() {
+        return 0;
+    }
+
+    public int foo() {
+        return 0;
+    }
+}
