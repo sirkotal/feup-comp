@@ -26,7 +26,31 @@ public class InvalidAssignments extends AnalysisVisitor {
             var varName = assignStmt.get("name");
             var expr = assignStmt.getJmmChild(0);
 
-            validateAssignExpression(assignStmt.getAncestor(Kind.METHOD_DECL), varName, expr, table, false);
+            var method = assignStmt.getAncestor(Kind.METHOD_DECL).get();
+
+            if (method.get("name").equals("main")) {
+                var checkLocals = table.getLocalVariables(method.get("name")).stream()
+                        .anyMatch(var -> var.getName().equals(varName));
+
+                if (checkLocals) {
+                    return null;
+                }
+
+                table.getFields().stream()
+                        .filter(f -> f.getName().equals(varName))
+                        .findFirst()
+                        .ifPresent(
+                                f -> addReport(Report.newError(
+                                        Stage.SEMANTIC,
+                                        NodeUtils.getLine(assignStmt),
+                                        NodeUtils.getColumn(assignStmt),
+                                        "Cannot assign to field in static method.",
+                                        null
+                                ))
+                        );
+            }
+
+            validateAssignExpression(method, varName, expr, table, false);
             return null;
         }
 
@@ -48,29 +72,24 @@ public class InvalidAssignments extends AnalysisVisitor {
                 return null;
             }
 
-            validateAssignExpression(assignArrayStmt.getAncestor(Kind.METHOD_DECL), varName, assignExpr, table, true);
+            var method = assignArrayStmt.getAncestor(Kind.METHOD_DECL).get();
+
+            validateAssignExpression(method, varName, assignExpr, table, true);
             return null;
         }
 
-        private void validateAssignExpression(Optional<JmmNode> ancestorMethod, String varName, JmmNode expr, SymbolTable table, boolean arrayAccess) {
-            ancestorMethod.ifPresentOrElse(
-                    method -> {
-                        var methodName = method.get("name");
+        private void validateAssignExpression(JmmNode ancestorMethod, String varName, JmmNode expr, SymbolTable table, boolean arrayAccess) {
+                var methodName = ancestorMethod.get("name");
 
-                        table.getLocalVariables(methodName).stream()
-                                .filter(var -> var.getName().equals(varName))
-                                .findFirst()
-                                .ifPresentOrElse(
-                                        localVar -> typeChecking(expr, localVar, table, arrayAccess),
-                                        () -> table.getParameters(methodName).stream()
-                                                .filter(p -> p.getName().equals(varName))
-                                                .findFirst().ifPresent(param -> typeChecking(expr, param, table, arrayAccess))
-                                );
-                    },
-                    () -> table.getFields().stream()
-                            .filter(f -> f.getName().equals(varName))
-                            .findFirst().ifPresent(field -> typeChecking(expr, field, table, arrayAccess))
-            );
+                table.getLocalVariables(methodName).stream()
+                        .filter(var -> var.getName().equals(varName))
+                        .findFirst()
+                        .ifPresentOrElse(
+                                localVar -> typeChecking(expr, localVar, table, arrayAccess),
+                                () -> table.getParameters(methodName).stream()
+                                        .filter(p -> p.getName().equals(varName))
+                                        .findFirst().ifPresent(param -> typeChecking(expr, param, table, arrayAccess))
+                        );
         }
 
         private void typeChecking(JmmNode expr, Symbol symbol, SymbolTable table, boolean arrayAccess) {
@@ -197,7 +216,7 @@ public class InvalidAssignments extends AnalysisVisitor {
                         return;
                     }
 
-                    if (!TypeUtils.areTypesAssignable(symbolType, exprType)) {
+                    if (!TypeUtils.areTypesAssignable(symbolType, exprType, table)) {
                         addReport(Report.newError(
                                 Stage.SEMANTIC,
                                 NodeUtils.getLine(expr),

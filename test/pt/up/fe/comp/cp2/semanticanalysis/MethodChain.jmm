@@ -1,0 +1,16 @@
+class MethodChain {
+
+    public static void main(String[] args) {
+        int n;
+        n = (new MethodChain()).foo((new MethodChain()).bar());
+    }
+
+    public int foo(int n) {
+        return n;
+    }
+
+    public int bar() {
+        return 1;
+    }
+
+}

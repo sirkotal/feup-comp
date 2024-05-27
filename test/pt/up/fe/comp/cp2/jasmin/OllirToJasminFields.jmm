@@ -1,27 +1,17 @@
-import io;
-
 class Test {
-    int test1;
-    boolean test2;
 
-    public static void main(String[] args) {
+	int intField;
+
+	public static void main(String[] args) {
+	}
+
+	
+	public int foo() {
         int a;
-        boolean b;
-        Test t;
-        t = new Test();
-        a = t.test(5);
-        b = t.check(false);
-        io.println(a);
-        io.println(b);
-    }
 
-    public int test(int a) {
-        test1 = 2 + 5 + a;
-        return 2 + test1;
-    }
+		intField = 10;
+		a = intField;
 
-    public boolean check(boolean a) {
-        test2 = a;
-        return test2;
-    }
+		return a;
+	}
 }

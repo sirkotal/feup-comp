@@ -33,6 +33,11 @@ public class JasminTest {
         testOllirToJasmin("pt/up/fe/comp/cp2/jasmin/OllirToJasminFields.ollir");
     }
 
+    @Test
+    public void ollirToJasminRandomTest() {
+        testOllirToJasmin("pt/up/fe/comp/cp2/jasmin/OllirToJasminRandom.ollir");
+    }
+
     public static void testOllirToJasmin(String resource, String expectedOutput) {
         JasminResult result = null;
 
@@ -56,7 +61,7 @@ public class JasminTest {
         var testName = new File(resource).getName();
         System.out.println(testName + ":\n" + result.getJasminCode());
         var runOutput = result.runWithFullOutput();
-        // assertEquals("Error while running compiled Jasmin: " + runOutput.getOutput(), 0, runOutput.getReturnValue());
+        assertEquals("Error while running compiled Jasmin: " + runOutput.getOutput(), 0, runOutput.getReturnValue());
         System.out.println("\n Result: " + runOutput.getOutput());
 
         if (expectedOutput != null) {

@@ -47,6 +47,16 @@ public class OllirTest {
         testJmmCompilation("pt/up/fe/comp/cp2/ollir/CompileFields.jmm", this::compileFields);
     }
 
+    @Test
+    public void compileImportComplex() {
+        testJmmCompilation("pt/up/fe/comp/cp2/ollir/CompileImportComplex.jmm", this::compileImportComplex);
+    }
+
+    @Test
+    public void compileComplexArithmetic() {
+        testJmmCompilation("pt/up/fe/comp/cp2/ollir/CompileComplexArithmetic.jmm", this::compileComplexArithmetic);
+    }
+
     public static void testJmmCompilation(String resource, Consumer<ClassUnit> ollirTester, String executionOutput) {
 
         // If AstToJasmin pipeline, generate Jasmin
@@ -117,6 +127,10 @@ public class OllirTest {
                 .filter(inst -> inst instanceof ReturnInstruction)
                 .findFirst();
         assertTrue("Could not find a return instruction in method2", retInst2.isPresent());
+    }
+
+    public void compileComplexArithmetic(ClassUnit classUnit) {
+        return;
     }
 
     public void compileArithmetic(ClassUnit classUnit) {
@@ -216,12 +230,11 @@ public class OllirTest {
                 assignInst.get().getTypeOfAssign().getTypeOfElement());
     }
 
-    // TODO: not sure about this test
     public void compileFields(ClassUnit classUnit) {
         // Test name of the class
         assertEquals("Class name not what was expected", "CompileFields", classUnit.getClassName());
 
-        // Test main
+        // Test foo
         var methodName = "foo";
         Method methodFoo = classUnit.getMethods().stream()
                 .filter(method -> method.getMethodName().equals(methodName))
@@ -231,7 +244,7 @@ public class OllirTest {
         assertNotNull("Could not find method " + methodName, methodFoo);
 
         // Test putfield
-        /*var putFieldInst = methodFoo.getInstructions().stream()
+        var putFieldInst = methodFoo.getInstructions().stream()
                 .filter(inst -> inst instanceof PutFieldInstruction)
                 .map(PutFieldInstruction.class::cast)
                 .findFirst();
@@ -245,6 +258,31 @@ public class OllirTest {
                 .filter(assign -> assign.getRhs() instanceof GetFieldInstruction)
                 .findFirst();
 
-        assertTrue("Could not find a getfield instruction in method " + methodName, getFieldInst.isPresent());*/
+        assertTrue("Could not find a getfield instruction in method " + methodName, getFieldInst.isPresent());
+    }
+
+    public void compileImportComplex(ClassUnit classUnit) {
+        // Test name of the class
+        assertEquals("Class name not what was expected", "CompileImportComplex", classUnit.getClassName());
+
+        // Test foo
+        var methodName = "foo";
+        Method methodFoo = classUnit.getMethods().stream()
+                .filter(method -> method.getMethodName().equals(methodName))
+                .findFirst()
+                .orElse(null);
+        assertNotNull("Could not find method " + methodName, methodFoo);
+
+        var assignInst = methodFoo.getInstructions().stream()
+                .filter(inst -> inst instanceof AssignInstruction)
+                .map(AssignInstruction.class::cast)
+                .toList().get(1);
+
+        var rhsType = ((CallInstruction) assignInst.getRhs()).getReturnType();
+
+        assertEquals("Assignment does not have the expected type", ElementType.INT32, rhsType.getTypeOfElement());
+
+        assertEquals("Assignment does not have the expected type", ElementType.INT32,
+                assignInst.getTypeOfAssign().getTypeOfElement());
     }
 }

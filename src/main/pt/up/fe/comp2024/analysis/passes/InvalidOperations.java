@@ -203,6 +203,13 @@ public class InvalidOperations extends AnalysisVisitor {
 
             // `main` is the only static method
             if (isField && methodNode.get("name").equals("main")) {
+                var checkLocals = table.getLocalVariables(methodNode.get("name")).stream()
+                        .anyMatch(l -> l.getName().equals(varName));
+
+                if (checkLocals) {
+                    return null;
+                }
+
                 addReport(Report.newError(
                         Stage.SEMANTIC,
                         NodeUtils.getLine(varRefExpr),
@@ -231,7 +238,7 @@ public class InvalidOperations extends AnalysisVisitor {
                     }
 
                     if (paramType.getObject("isVarargs", Boolean.class) && i == methodParams.size() - 1) {
-                        if (!TypeUtils.areTypesAssignable(argType, paramType)) {
+                        if (!TypeUtils.areTypesAssignable(argType, paramType, table)) {
                             addReport(Report.newError(
                                     Stage.SEMANTIC,
                                     NodeUtils.getLine(arg),
@@ -254,7 +261,7 @@ public class InvalidOperations extends AnalysisVisitor {
                         }
                         return;
                     } else {
-                        if (!TypeUtils.areTypesAssignable(argType, paramType)) {
+                        if (!TypeUtils.areTypesAssignable(argType, paramType, table)) {
                             addReport(Report.newError(
                                     Stage.SEMANTIC,
                                     NodeUtils.getLine(arg),

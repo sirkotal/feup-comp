@@ -11,9 +11,12 @@ public enum Kind {
     IMPORT_DECL,
     CLASS_DECL,
     VAR_DECL,
-    TYPE,
     VARARGS_TYPE,
     ARRAY_TYPE,
+    BOOLEAN_TYPE,
+    INT_TYPE,
+    STRING_TYPE,
+    CLASS_TYPE,
     METHOD_DECL,
     PARAM,
     EXPR_STMT,
@@ -21,12 +24,15 @@ public enum Kind {
     WHILE_STMT,
     ASSIGN_STMT,
     ASSIGN_ARRAY_STMT,
+    BLOCK_STMT,
+    PRIORITY,
     BINARY_EXPR,
     ARRAY_ACCESS,
     METHOD_EXPR,
     NEW_ARRAY,
     NEW_CLASS,
     LENGTH_EXPR,
+    NEGATION,
     ARRAY_LITERAL,
     INTEGER_LITERAL,
     BOOLEAN_LITERAL,
@@ -34,8 +40,9 @@ public enum Kind {
     THIS_EXPR;
 
 
-    private static final Set<Kind> STATEMENTS = Set.of(EXPR_STMT, IF_STMT, WHILE_STMT, ASSIGN_STMT, ASSIGN_ARRAY_STMT);
-    private static final Set<Kind> EXPRESSIONS = Set.of(BINARY_EXPR, ARRAY_ACCESS, METHOD_EXPR, NEW_ARRAY, NEW_CLASS, LENGTH_EXPR, ARRAY_LITERAL, INTEGER_LITERAL, BOOLEAN_LITERAL, VAR_REF_EXPR, THIS_EXPR);
+    private static final Set<Kind> STATEMENTS = Set.of(EXPR_STMT, IF_STMT, WHILE_STMT, ASSIGN_STMT, ASSIGN_ARRAY_STMT, BLOCK_STMT);
+    private static final Set<Kind> EXPRESSIONS = Set.of(BINARY_EXPR, ARRAY_ACCESS, METHOD_EXPR, NEW_ARRAY, NEW_CLASS, LENGTH_EXPR, NEGATION, ARRAY_LITERAL, INTEGER_LITERAL, BOOLEAN_LITERAL, VAR_REF_EXPR, THIS_EXPR);
+    private static final Set<Kind> TYPES = Set.of(BOOLEAN_TYPE, INT_TYPE, STRING_TYPE, CLASS_TYPE, ARRAY_TYPE, VARARGS_TYPE);
 
     private final String name;
 
@@ -109,7 +116,6 @@ public enum Kind {
      * @param kindsToTest
      * @return
      */
-    StringBuilder computation = new StringBuilder();
     public static boolean check(JmmNode node, Kind... kindsToTest) {
 
         for (Kind k : kindsToTest) {
@@ -134,6 +140,12 @@ public enum Kind {
         if (!check(node, kindsToTest)) {
             // throw if none matches
             throw new RuntimeException("Node '" + node + "' is not any of " + Arrays.asList(kindsToTest));
+        }
+    }
+
+    public static void checkIfType(JmmNode node) {
+        if (!TYPES.contains(fromString(node.getKind()))) {
+            throw new RuntimeException("Node '" + node + "' is not a type");
         }
     }
 }

@@ -351,4 +351,18 @@ public class SemanticAnalysisTest {
                 .analyse(SpecsIo.getResource("pt/up/fe/comp/cp2/semanticanalysis/ArrayCall.jmm"));
         TestUtils.noErrors(result);
     }
+
+    @Test
+    public void methodChain() {
+        var result = TestUtils
+                .analyse(SpecsIo.getResource("pt/up/fe/comp/cp2/semanticanalysis/MethodChain.jmm"));
+        TestUtils.noErrors(result);
+    }
+
+    @Test
+    public void assignSuper() {
+        var result = TestUtils
+                .analyse(SpecsIo.getResource("pt/up/fe/comp/cp2/semanticanalysis/AssignSuper.jmm"));
+        TestUtils.noErrors(result);
+    }
 }

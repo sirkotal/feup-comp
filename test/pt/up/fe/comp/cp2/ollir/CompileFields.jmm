@@ -6,16 +6,12 @@ class CompileFields {
 	}
 
 
-	public String bar(String s) {
-	    return s;
-	}
-
-
-	public String foo() {
+	public int foo() {
         int a;
 
-		String x;
+		intField = 10;
+		a = intField;
 
-		return this.bar(x);
+		return a;
 	}
 }

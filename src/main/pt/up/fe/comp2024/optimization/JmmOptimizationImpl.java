@@ -1,6 +1,7 @@
 package pt.up.fe.comp2024.optimization;
 
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
+import pt.up.fe.comp.jmm.ast2jasmin.AstToJasmin;
 import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 
@@ -21,9 +22,16 @@ public class JmmOptimizationImpl implements JmmOptimization {
     }
 
     @Override
-    public OllirResult optimize(OllirResult ollirResult) {
+    public JmmSemanticsResult optimize(JmmSemanticsResult semanticsResult) {
+        // TODO: To implement for CP3
+        return JmmOptimization.super.optimize(semanticsResult);
+    }
 
-        //TODO: Do your OLLIR-based optimizations here
+    @Override
+    public OllirResult optimize(OllirResult ollirResult) {
+        int max_registers = Integer.parseInt(ollirResult.getConfig().getOrDefault("registerAllocation", "-1"));
+        RegisterAllocator optimizer = new RegisterAllocator(ollirResult, max_registers);
+        optimizer.allocateReg();
 
         return ollirResult;
     }

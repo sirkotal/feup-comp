@@ -28,7 +28,7 @@ IMPORT : 'import' ;
 CLASS : 'class' ;
 EXTENDS : 'extends' ;
 INT : 'int' ;
-BOOLEAN : 'boolean' ;
+BOOL : 'boolean' ;
 VOID : 'void' ;
 PUBLIC : 'public' ;
 STATIC : 'static' ;
@@ -41,6 +41,7 @@ IF: 'if' ;
 ELSE: 'else' ;
 
 INTEGER : '0' | [1-9] [0-9]* ;
+BOOLEAN : ('true' | 'false');
 ID : [a-zA-Z_$][a-zA-Z_$0-9]* ;
 
 WS : [ \t\n\r\f]+ -> skip ;
@@ -70,7 +71,7 @@ varDecl
 type locals[boolean isArray=false, boolean isVarargs=false]
     : type LSQUARE RSQUARE {$isArray=true;}     #ArrayType
     | name= INT VARARGS    {$isVarargs=true;}   #VarargsType
-    | name= BOOLEAN                             #BooleanType
+    | name= BOOL                             #BooleanType
     | name= INT                                 #IntType
     | name= 'String'                            #StringType
     | name= ('main' | 'length' | ID)            #ClassType
@@ -80,11 +81,11 @@ methodDecl locals[boolean isPublic=false]
     : (PUBLIC {$isPublic=true;})?
         type name=('length' | ID)
         LPAREN (param (',' param)*)? RPAREN
-        LCURLY (varDecl | stmt)* RETURN expr SEMI RCURLY
+        LCURLY varDecl* stmt* RETURN expr SEMI RCURLY
     | (PUBLIC {$isPublic=true;})? STATIC
         VOID name='main'
         LPAREN 'String' LSQUARE RSQUARE paramName=('main' | 'length' | ID) RPAREN
-        LCURLY (varDecl | stmt)* RCURLY
+        LCURLY varDecl* stmt* RCURLY
     ;
 
 param
@@ -115,6 +116,6 @@ expr
     | NOT expr                                                                      #Negation
     | LSQUARE (elem+=expr ( COMMA elem+=expr )*)? RSQUARE                           #ArrayLiteral
     | value=INTEGER                                                                 #IntegerLiteral
-    | value=('true' | 'false')                                                      #BooleanLiteral
+    | value=BOOLEAN                                                                 #BooleanLiteral
     | name=('main' | 'length' | ID)                                                 #VarRefExpr
     ;

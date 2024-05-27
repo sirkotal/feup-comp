@@ -1,0 +1,18 @@
+import test.a.B;
+
+class CompileImportComplex {
+
+    public static void main(String[] args) {
+
+    }
+
+    public int foo() {
+        int a;
+
+        B b;
+        b = new B();
+        a = b.foo();
+
+        return 0;
+    }
+}
